@@ -36,9 +36,9 @@ class SourceFactory extends Factory
     /**
      * Indicate that the source is inactive.
      *
-     * @return static
+     * @return \Database\Factories\SourceFactory
      */
-    public function inactive(): static
+    public function inactive()
     {
         return $this->state(fn (array $attributes) => [
             'is_active' => false,

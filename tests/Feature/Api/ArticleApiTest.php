@@ -167,9 +167,12 @@ class ArticleApiTest extends TestCase
         $response = $this->getJson('/api/v1/articles?per_page=5');
 
         $response->assertStatus(200)
-            ->assertJsonCount(5, 'data')
-            ->assertJsonPath('meta.per_page', 5)
-            ->assertJsonPath('meta.total', 20);
+            ->assertJsonCount(5, 'data');
+        
+        $json = $response->json();
+        $this->assertArrayHasKey('meta', $json);
+        $this->assertEquals(5, $json['meta']['per_page']);
+        $this->assertEquals(20, $json['meta']['total']);
     }
 
     public function test_can_show_single_article(): void
