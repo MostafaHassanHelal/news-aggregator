@@ -11,6 +11,7 @@ use App\Services\NewsAggregatorService;
 use App\Services\NewsProviders\GuardianProvider;
 use App\Services\NewsProviders\NewsApiProvider;
 use App\Services\NewsProviders\NyTimesProvider;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -56,6 +57,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Fix for older MySQL / MariaDB default index length issues when using utf8mb4.
+        // Ensures string columns default to 191 chars so unique indexes don't exceed
+        // MySQL's 767-byte limit (utf8mb4 = 4 bytes per char) on older servers.
+        Schema::defaultStringLength(191);
     }
 }
