@@ -26,16 +26,16 @@ class ArticleDTOTest extends TestCase
 
         $dto = ArticleDTO::fromArray($data);
 
-        $this->assertEquals(1, $dto->sourceId);
-        $this->assertEquals('ext-123', $dto->externalId);
-        $this->assertEquals('Test Article', $dto->title);
-        $this->assertEquals('Test description', $dto->description);
-        $this->assertEquals('Test content', $dto->content);
-        $this->assertEquals('John Doe', $dto->author);
-        $this->assertEquals('https://example.com/article', $dto->url);
-        $this->assertEquals('https://example.com/image.jpg', $dto->imageUrl);
-        $this->assertEquals('Technology', $dto->category);
-        $this->assertNotNull($dto->publishedAt);
+        $this->assertEquals(1, $dto->getSourceId());
+        $this->assertEquals('ext-123', $dto->getExternalId());
+        $this->assertEquals('Test Article', $dto->getTitle());
+        $this->assertEquals('Test description', $dto->getDescription());
+        $this->assertEquals('Test content', $dto->getContent());
+        $this->assertEquals('John Doe', $dto->getAuthor());
+        $this->assertEquals('https://example.com/article', $dto->getUrl());
+        $this->assertEquals('https://example.com/image.jpg', $dto->getImageUrl());
+        $this->assertEquals('Technology', $dto->getCategory());
+        $this->assertNotNull($dto->getPublishedAt());
     }
 
     public function test_handles_null_optional_fields(): void
@@ -49,12 +49,12 @@ class ArticleDTOTest extends TestCase
 
         $dto = ArticleDTO::fromArray($data);
 
-        $this->assertNull($dto->description);
-        $this->assertNull($dto->content);
-        $this->assertNull($dto->author);
-        $this->assertNull($dto->imageUrl);
-        $this->assertNull($dto->category);
-        $this->assertNull($dto->publishedAt);
+        $this->assertNull($dto->getDescription());
+        $this->assertNull($dto->getContent());
+        $this->assertNull($dto->getAuthor());
+        $this->assertNull($dto->getImageUrl());
+        $this->assertNull($dto->getCategory());
+        $this->assertNull($dto->getPublishedAt());
     }
 
     public function test_converts_to_array(): void
