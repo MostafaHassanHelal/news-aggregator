@@ -18,7 +18,7 @@ class GuardianProvider extends BaseNewsProvider
     public function __construct(GuardianMapper $mapper)
     {
         parent::__construct($mapper);
-        $this->apiKey = config('services.guardian.key', '');
+        $this->apiKey = (string) config('services.guardian.key');
     }
 
     /**

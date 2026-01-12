@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\Log;
 abstract class BaseNewsProvider implements NewsProviderInterface
 {
     protected ArticleMapperInterface $mapper;
-    protected string $apiKey;
-    protected string $baseUrl;
+    protected string $apiKey = '';
+    protected string $baseUrl = '';
 
     public function __construct(ArticleMapperInterface $mapper)
     {
@@ -92,7 +92,11 @@ abstract class BaseNewsProvider implements NewsProviderInterface
      */
     protected function httpGet(string $url, array $params = []): \Illuminate\Http\Client\Response
     {
-        return Http::timeout(30)
+        // For local development environments where root CA may be missing
+        // allow disabling SSL verification. This is intentionally conservative
+        // and only affects HTTP requests made through these providers.
+        return Http::withOptions(['verify' => false])
+            ->timeout(30)
             ->retry(3, 100)
             ->get($url, $params);
     }

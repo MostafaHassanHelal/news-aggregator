@@ -98,7 +98,9 @@ class ArticleDTO
             'content' => $this->content,
             'author' => $this->author,
             'url' => $this->url,
-            'image_url' => $this->imageUrl,
+            // Ensure image_url fits database column limits (default string length = 191)
+            // Use byte-wise substr to avoid exceeding the column byte limit
+            'image_url' => $this->imageUrl !== null ? substr($this->imageUrl, 0, 191) : null,
             'category' => $this->category,
             'published_at' => $this->publishedAt !== null ? $this->publishedAt->format('Y-m-d H:i:s') : null,
         ];

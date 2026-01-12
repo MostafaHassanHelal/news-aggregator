@@ -18,7 +18,7 @@ class NewsApiProvider extends BaseNewsProvider
     public function __construct(NewsApiMapper $mapper)
     {
         parent::__construct($mapper);
-        $this->apiKey = config('services.newsapi.key', '');
+        $this->apiKey = (string) config('services.newsapi.key');
     }
 
     /**

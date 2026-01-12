@@ -18,7 +18,7 @@ class NyTimesProvider extends BaseNewsProvider
     public function __construct(NyTimesMapper $mapper)
     {
         parent::__construct($mapper);
-        $this->apiKey = config('services.nytimes.key', '');
+        $this->apiKey = (string) config('services.nytimes.key');
     }
 
     /**
