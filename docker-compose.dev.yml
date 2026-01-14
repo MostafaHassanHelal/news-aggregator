@@ -1,0 +1,81 @@
+# Development Docker Compose - mounts local files for hot reload
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: news-aggregator-dev
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=${APP_KEY:-base64:your-app-key-here}
+      - APP_URL=http://localhost:8000
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=news_aggregator
+      - DB_USERNAME=news_user
+      - DB_PASSWORD=secret
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NEWSAPI_KEY=${NEWSAPI_KEY:-}
+      - GUARDIAN_API_KEY=${GUARDIAN_API_KEY:-}
+      - NYTIMES_API_KEY=${NYTIMES_API_KEY:-}
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - news-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: news-aggregator-mysql-dev
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootsecret
+      - MYSQL_DATABASE=news_aggregator
+      - MYSQL_USER=news_user
+      - MYSQL_PASSWORD=secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data-dev:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootsecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - news-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: news-aggregator-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - news-network
+
+networks:
+  news-network:
+    driver: bridge
+
+volumes:
+  mysql-data-dev:

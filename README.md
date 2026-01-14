@@ -70,12 +70,89 @@ app/
 
 ## Requirements
 
-- PHP 7.4+
+- PHP 8.2+ (or Docker)
 - Composer
-- MySQL/PostgreSQL/SQLite
+- MySQL 8.0
+- Redis (for queues/cache)
 - News API keys (see below)
 
 ## Installation
+
+### Option 1: Docker (Recommended)
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd news-aggregator
+   ```
+
+2. **Copy environment file**
+   ```bash
+   cp .env.docker .env
+   ```
+
+3. **Generate application key**
+   ```bash
+   # Generate a key and add it to .env
+   php -r "echo 'APP_KEY=base64:' . base64_encode(random_bytes(32)) . PHP_EOL;"
+   ```
+
+4. **Add your API keys** to `.env`
+   ```env
+   NEWSAPI_KEY=your_newsapi_key
+   GUARDIAN_API_KEY=your_guardian_key
+   NYTIMES_API_KEY=your_nytimes_key
+   ```
+
+5. **Build and start containers**
+   ```bash
+   docker-compose up -d --build
+   ```
+
+6. **Run migrations and seed**
+   ```bash
+   docker-compose exec app php artisan migrate --seed
+   ```
+
+7. **Access the API**
+   ```
+   http://localhost:8000/api/v1/articles
+   ```
+
+#### Docker Commands
+
+```bash
+# Start all services
+docker-compose up -d
+
+# Stop all services
+docker-compose down
+
+# View logs
+docker-compose logs -f app
+
+# Run artisan commands
+docker-compose exec app php artisan <command>
+
+# Fetch articles manually
+docker-compose exec app php artisan news:fetch --sync
+
+# Run tests
+docker-compose exec app php artisan test
+
+# Access MySQL
+docker-compose exec mysql mysql -u news_user -psecret news_aggregator
+```
+
+#### Development with Docker
+
+For development with hot-reload:
+
+```bash
+docker-compose -f docker-compose.dev.yml up -d --build
+```
+
+### Option 2: Local Installation
 
 1. **Clone the repository**
    ```bash
