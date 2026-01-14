@@ -25,18 +25,6 @@ class ArticleRepository implements ArticleRepositoryInterface
     {
         $data = $articleDTO->toArray();
 
-        // Debug: log image_url byte length to diagnose DB truncation issues
-        try {
-            \Illuminate\Support\Facades\Log::info('article.image_url.length', [
-                'source_id' => $articleDTO->getSourceId(),
-                'external_id' => $articleDTO->getExternalId(),
-                'length_bytes' => isset($data['image_url']) && $data['image_url'] !== null ? strlen($data['image_url']) : 0,
-                'sample' => isset($data['image_url']) && $data['image_url'] !== null ? substr($data['image_url'], 0, 300) : null,
-            ]);
-        } catch (\Throwable $e) {
-            // ignore logging errors in production flow
-        }
-
         Article::updateOrCreate(
             [
                 'source_id' => $articleDTO->getSourceId(),
