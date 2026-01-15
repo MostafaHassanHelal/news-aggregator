@@ -1,15 +1,25 @@
 # News Aggregator API
 
-A backend-only News Aggregator system built with Laravel that aggregates articles from multiple external news APIs, stores them locally, and exposes clean REST APIs for querying articles.
+A backend-only News Aggregator system built with **Laravel 11** and **PHP 8.3** that aggregates articles from multiple external news APIs, stores them locally, and exposes clean REST APIs for querying articles.
+
+## Tech Stack
+
+- **Framework**: Laravel 11.x
+- **PHP**: 8.3
+- **Database**: MySQL 8.0
+- **Cache/Queue**: Redis
+- **Testing**: PHPUnit 11
 
 ## Features
 
 - 🔄 **Multi-source aggregation**: Fetch articles from NewsAPI, The Guardian, and NY Times
 - 🏗️ **Clean Architecture**: Strategy, Adapter, and Repository patterns
-- 📅 **Scheduled fetching**: Automatic article updates via Laravel Scheduler
+- 🚫 **Duplicate Prevention**: Unique constraint on `(source_id, external_id)` with upsert logic
+- 📅 **Scheduled fetching**: Automatic article updates every 30 minutes via Laravel Scheduler
 - 🔍 **Advanced filtering**: Search, filter by source, category, author, date range
 - ⚡ **Queue support**: Asynchronous article fetching via Laravel Queues
-- 🧪 **Tested**: Unit and feature tests included
+- 🐳 **Dockerized**: Production-ready Docker setup with MySQL & Redis
+- 🧪 **Tested**: 47+ unit and feature tests included
 
 ## Architecture
 
@@ -22,6 +32,22 @@ A backend-only News Aggregator system built with Laravel that aggregates article
 3. **Repository Pattern**: `ArticleRepository` encapsulates all database operations, making it easy to swap data storage implementations.
 
 4. **Command + Job Pattern**: Scheduled commands dispatch jobs for article fetching, supporting both synchronous and queued execution.
+
+5. **DTO Pattern**: `ArticleDTO` provides type-safe data transfer between layers.
+
+### How Duplicate Prevention Works
+
+```
+Article fetched from API
+    ↓
+Mapper generates external_id (md5 of URL or API's native ID)
+    ↓
+Repository calls updateOrCreate(['source_id', 'external_id'], data)
+    ↓
+If exists → UPDATE | If not → INSERT
+    ↓
+DB unique constraint as backup protection
+```
 
 ### Directory Structure
 
@@ -56,12 +82,12 @@ app/
 │   └── ArticleRepository.php
 └── Services/
     ├── NewsAggregatorService.php       # Orchestrates all providers
-    ├── Mappers/                        # API response mappers
+    ├── Mappers/                        # Adapter pattern - normalize API responses
     │   ├── BaseArticleMapper.php
     │   ├── GuardianMapper.php
     │   ├── NewsApiMapper.php
     │   └── NyTimesMapper.php
-    └── NewsProviders/                  # Provider implementations
+    └── NewsProviders/                  # Strategy pattern - provider implementations
         ├── BaseNewsProvider.php
         ├── GuardianProvider.php
         ├── NewsApiProvider.php
@@ -409,3 +435,37 @@ php artisan test tests/Feature/Api/ArticleApiTest.php
 ## License
 
 This project is open-sourced software licensed under the MIT license.
+
+## API Quick Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/articles` | GET | List/search articles with filters |
+| `/api/v1/articles/{id}` | GET | Get single article |
+| `/api/v1/sources` | GET | List all active sources |
+| `/api/v1/sources/{id}` | GET | Get single source |
+
+### Filter Parameters for `/api/v1/articles`
+
+```bash
+# Search by keyword
+GET /api/v1/articles?q=technology
+
+# Filter by source
+GET /api/v1/articles?source=newsapi
+
+# Filter by category
+GET /api/v1/articles?category=business
+
+# Filter by author
+GET /api/v1/articles?author=john
+
+# Filter by date range
+GET /api/v1/articles?from=2026-01-01&to=2026-01-15
+
+# Pagination
+GET /api/v1/articles?per_page=20&page=2
+
+# Combined filters
+GET /api/v1/articles?q=tech&source=guardian&category=technology&from=2026-01-01&per_page=10
+```
